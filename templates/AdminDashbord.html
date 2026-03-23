@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='AdminDashbord.css') }}">
+</head>
+<body>
+  <h2>Admin Dashboard</h2>
+  {% if msg %}
+    <p class="message">{{ msg }}</p>
+  {% endif %}
+
+  <form action="/admin/dashboard" method="POST" enctype="multipart/form-data">
+    <input type="text" name="movie_id" placeholder="Movie ID (e.g. MOV008)" required>
+    <input type="text" name="title" placeholder="Movie Title" required>
+    <textarea name="description" placeholder="Description" required></textarea>
+    <input type="file" name="poster" accept="image/*" required>
+    <input type="text" name="theaters" placeholder="Theaters (comma separated)" required>
+    <input type="text" name="showtimes" placeholder="Showtimes (comma separated)" required>
+    <input type="text" name="genre" placeholder="Genre" required>
+    <input type="text" name="release_date" placeholder="Release Date" required>
+    <input type="text" name="duration" placeholder="Duration" required>
+    <input type="number" name="price" placeholder="Price" required>
+    <input type="text" name="address" placeholder="Address" required>
+    <input type="text" name="theatersName" placeholder="Theater Name" required>
+    <button type="submit">Add Movie</button>
+  </form>
+  <!-- ✅ Add your Delete List here -->
+  <h3>Current Movies</h3>
+<ul class="movie-list">
+  {% for id, movie in movies.items() %}
+    <li class="movie-item">
+      <div class="movie-info">
+        <strong>{{ movie.title }}</strong> ({{ id }})<br>
+        {{ movie.description }}
+      </div>
+      <form action="{{ url_for('delete_movie', movie_id=id) }}" method="POST">
+        <button type="submit" class="delete-btn">Delete</button>
+      </form>
+    </li>
+  {% endfor %}
+</ul>
+  <!-- ✅ New Button -->
+  <a href="{{ url_for('index') }}">
+    <button type="button">Go Back to Home</button>
+  </a>
+
+
+  <h3>Current Movies</h3>
+  <ul>
+    {% for id, movie in movies.items() %}
+      <li>
+        <strong>{{ movie.title }}</strong> ({{ id }})<br>
+        {{ movie.description }}
+      </li>
+    {% endfor %}
+  </ul>
+  <!-- Booked Seats -->
+  <!-- <h3>Booked Seats</h3>
+<ul class="seat-list">
+  {% for seat in seats %}
+    <li class="seat-item">
+      <div class="seat-info">
+        <strong>Seat {{ seat['seat_id'] }}</strong> - Status: {{ seat['seat_status'] }}
+      </div>
+      {% if seat['seat_status'] == 'booked' %}
+        <form action="{{ url_for('cancel_booking', seat_id=seat['seat_id']) }}" method="POST">
+          <button type="submit" class="unbook-btn">Unbook</button>
+        </form>
+      {% else %}
+        <span class="available">Available</span>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul> -->
+
+  <!-- Back to Home -->
+  <a href="{{ url_for('index') }}">
+    <button type="button">Go Back to Home</button>
+  </a>
+
+</body>
+</html>

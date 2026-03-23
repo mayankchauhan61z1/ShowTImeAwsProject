@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+</head>
+<body>
+    <navbar>
+        <div class="navsearchbar">
+            <a class="navhead" id="webname" href="/">Show TIme</a>
+            <input type="text" class="navsearch" placeholder="Search..." /> 
+            <i class="fa-solid fa-magnifying-glass" id="searchlogo"></i>
+            {% if 'user' in session %}
+              <!-- Show logout if user is logged in -->
+              <a href="{{ url_for('logout') }}" class="logoutbutton">Logout</a>
+            {% else %}
+              <!-- Show login/signup if no user -->
+              <button class="navbutton" id="userLoginBtn">Login/Signup</button>
+              <button class="navbutton" id="adminLoginBtn">Admin Login</button>
+            {% endif %}
+
+        </div>
+        <div class="navfunction">
+                <a href="/home" class="navlink" >Home</a>
+                <a href="/about" class="navlink" id="aboutdirection">About</a>
+                <a href="/services" class="navlink">Services</a>
+                <a href="/contact" class="navlink">Contact</a>
+        </div>
+    </navbar>
+    <main>
+        <div class="herosection">
+            <div class="hero">
+  <div class="slides" id="slides">
+
+    <!-- SLIDE 1 -->
+    <div class="slide">
+      <img src="{{ url_for('static', filename='Images/Frieren.jpg') }}" alt="Frieren">
+
+      <div class="content">
+        <div class="spotlight">#1 Spotlight</div>
+        <div class="title">
+          Frieren: Beyond Journey’s End, Season 2
+        </div>
+
+        <div class="meta">
+          <span><i class="fa-solid fa-circle-play"></i>TV</span>
+          <span><i class="fa-solid fa-clock"></i>24m</span>
+          <span><i class="fa-solid fa-calendar"></i>Jan 16, 2026</span>
+          <span class="badge">HD</span>
+          <span class="badge">CC</span>
+        </div>
+
+        <div class="desc">
+          Second season of. The adventure is over but life goes on
+          for an elf mage just beginning to learn what living is
+          all about...
+        </div>
+
+        <div class="buttons">
+          <a href="{{ url_for('movie_detail', movie_id='MOV008') }}" class="btn-watch">▶ Watch Now</a>
+          <a href="{{ url_for('movie_detail', movie_id='MOV008') }}" class="btn-detail">Detail →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2 -->
+    <div class="slide">
+      <img src="{{ url_for('static', filename='Images/HellParadise.jpg') }}"alt="HellParadise">
+      <div class="content">
+        <div class="spotlight">#2 Spotlight</div>
+        <div class="title">
+          Hell's Paradise Season 2<br>
+        </div>
+
+        <div class="meta">
+          <span><i class="fa-solid fa-circle-play"></i>TV</span>
+          <span><i class="fa-solid fa-clock"></i>24m</span>
+          <span><i class="fa-solid fa-calendar"></i>Jan 11, 2026</span>
+          <span class="badge">HD</span>
+          <span class="badge">CC</span>
+        </div>
+
+        <div class="desc">
+          Second season of . The Edo period is nearinf its end. Gabimaru, shinobi
+          formerly known as the strongest, in Iwagakure who is now...
+        </div>
+
+        <div class="buttons">
+          <a href="{{ url_for('movie_detail', movie_id='MOV009') }}" class="btn-watch">▶ Watch Now</a>
+          <a href="{{ url_for('movie_detail', movie_id='MOV009') }}" class="btn-detail">Detail →</a>
+        </div>
+      </div>
+    </div>
+    <!-- SLIDE 3 -->
+     <div class="slide">
+      <img src="{{ url_for('static', filename='Images/JujutsuKaisen.jpg') }}" alt="JujutsuKaisen">
+      <div class="content">
+        <div class="spotlight">#3 Spotlight</div>
+        <div class="title">
+            Jujutsu Kaisen: The Culling Game, Part 1
+        </div>
+
+        <div class="meta">
+          <span><i class="fa-solid fa-circle-play"></i>TV</span>
+          <span><i class="fa-solid fa-clock"></i>24m</span>
+          <span><i class="fa-solid fa-calendar"></i>Jan 9, 2026</span>
+          <span class="badge">HD</span>
+          <span class="badge">CC</span>
+        </div>
+
+        <div class="desc">
+          The third season of Jujutsu Kaisen. After the Shibuya incident, a deadly jujutsu battle known as the Culling Game orchestrated by Noritoshi Kamoe...
+        </div>
+
+        <div class="buttons">
+          <a href="{{ url_for('movie_detail', movie_id='MOV0010') }}" class="btn-watch">▶ Watch Now</a>
+          <a href="{{ url_for('movie_detail', movie_id='MOV0010') }}" class="btn-detail">Detail →</a>
+        </div>
+      </div>
+    </div>
+    <!-- SLIDE 4 -->
+     <div class="slide">
+      <img src="{{ url_for('static', filename='Images/KunonTheSorcerer.jpg') }}" alt="KunonTheSorcerer">
+      <div class="content">
+        <div class="spotlight">#4 Spotlight</div>
+        <div class="title">
+          Kunon the Sorcerer Can See
+        </div>
+
+        <div class="meta">
+          <span><i class="fa-solid fa-circle-play"></i>TV</span>
+          <span><i class="fa-solid fa-clock"></i>23m</span>
+          <span><i class="fa-solid fa-calendar"></i>Jan 4, 2026</span>
+          <span class="badge">HD</span>
+          <span class="badge">CC</span>
+        </div>
+
+        <div class="desc">
+          Born blind, Kunon aims to be the first person to use water magic to create new eyes for himself. After five months of study, he has already surpasse...
+        </div>
+
+        <div class="buttons">
+          <a href="{{ url_for('movie_detail', movie_id='MOV0011') }}" class="btn-watch">▶ Watch Now</a>
+          <a href="{{ url_for('movie_detail', movie_id='MOV0011') }}" class="btn-detail">Detail →</a>
+        </div>
+      </div>
+    </div>
+    <!-- SLIDE 5 -->
+     <div class="slide">
+      <img src="{{ url_for('static', filename='Images/NobalReincarnation.jpg') }}" alt="NobalReincarnation">
+      <div class="content">
+        <div class="spotlight">#5 Spotlight</div>
+        <div class="title">
+          Noble Reincarnation: Born Blessed. So I'll Obtain Unlimited Power
+        </div>
+
+        <div class="meta">
+          <span><i class="fa-solid fa-circle-play"></i>TV</span>
+          <span><i class="fa-solid fa-clock"></i>23m</span>
+          <span><i class="fa-solid fa-calendar"></i>Jan 8, 2026</span>
+          <span class="badge">HD</span>
+          <span class="badge">CC</span>
+        </div>
+
+        <div class="desc">
+          Noah, the world's strongest six-year-old, holds the fortunate position of being the Thirteenth Prince of the emperor. Born with an infinite level cap
+        </div>
+
+        <div class="buttons">
+          <a href="{{ url_for('movie_detail', movie_id='MOV0012') }}" class="btn-watch">▶ Watch Now</a>
+          <a href="{{ url_for('movie_detail', movie_id='MOV0012') }}" class="btn-detail">Detail →</a>
+        </div>
+      </div>
+    </div>
+    <!-- slide6 -->
+     <div class="slide">
+      <img src="{{ url_for('static', filename='Images/OnePiece.jpg') }}" alt="OnePiece">
+      <div class="content">
+        <div class="spotlight">#6 Spotlight</div>
+        <div class="title">
+          One Piece
+        </div>
+
+        <div class="meta">
+          <span><i class="fa-solid fa-circle-play"></i>TV</span>
+          <span><i class="fa-solid fa-clock"></i>24m</span>
+          <span><i class="fa-solid fa-calendar"></i>Oct 20, 1999</span>
+          <span class="badge">HD</span>
+          <span class="badge">CC</span>
+        </div>
+
+        <div class="desc">
+          Gold Roger was known as the 'Pirate King', the strongest and most Infamous being to have salled the Grand Line. The capture and execution.
+        </div>
+
+        <div class="buttons">
+          <a href="{{ url_for('movie_detail', movie_id='MOV0013') }}" class="btn-watch">▶ Watch Now</a>
+          <a href="{{ url_for('movie_detail', movie_id='MOV0013') }}" class="btn-detail">Detail →</a>
+        </div>
+      </div>
+    </div>
+    <!-- slide7 -->
+     <div class="slide">
+      <img src="{{ url_for('static', filename='Images/Sentenced.jpg') }}" alt="SentencedToBeAHero">
+      <div class="content">
+        <div class="spotlight">#7 Spotlight</div>
+        <div class="title">
+            Sentenced to Be a Hero
+        </div>
+
+        <div class="meta">
+          <span><i class="fa-solid fa-circle-play"></i>TV</span>
+          <span><i class="fa-solid fa-clock"></i>24m</span>
+          <span><i class="fa-solid fa-calendar"></i>Jan 16, 2026</span>
+          <span class="badge">HD</span>
+          <span class="badge">CC</span>
+        </div>
+
+        <div class="desc">
+          Hero" is the worst punishment in the world. Those convicted of heinous crimes are sentenced to become "Heroes" and forced to enter the...
+        </div>
+
+        <div class="buttons">
+          <a href="{{ url_for('movie_detail', movie_id='MOV0014') }}" class="btn-watch">▶ Watch Now</a>
+          <a href="{{ url_for('movie_detail', movie_id='MOV0014') }}" class="btn-detail">Detail →</a>
+        </div>
+      </div>
+     </div>
+
+     </div>
+
+     <button class="arrow prev" id="prev">❮</button>
+     <button class="arrow next" id="next">❯</button>
+      </div>
+     </div>
+
+<div class="Genres">
+  <h2 class="genreh2">Genres & Movies</h2>
+  <div class="genrecards">
+    {% for id, movie in movies.items() %}
+    <div class="genrecard">
+    <a href="{{ url_for('movie_detail', movie_id=id) }}"> 
+      <img src="{{ url_for('static', filename=movie.poster) }}" 
+           alt="{{ movie.title }}">
+    </a>
+      <div class="type">{{ movie.title }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<!--  -->
+
+    </main>
+    <footer>
+        <div class="footerdiv">
+            <p class="footerdiv" id="footerpera">© 2026 Show Time. All rights reserved.</p>
+        </div>
+    </footer>
+    <!-- <script src="home.js"></script> -->
+<script src="{{ url_for('static', filename='home.js') }}"></script>
+</body>
+</html>

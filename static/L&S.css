@@ -1,0 +1,96 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  height: 100vh;
+  background: linear-gradient(120deg,#0f2027,#203a43,#2c5364);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  width: 850px;
+  height: 450px;
+  background: #0d1b2a;
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+}
+
+.panel {
+  width: 50%;
+  padding: 60px;
+  color: #fff;
+}
+
+.panel h2 {
+  margin-bottom: 10px;
+}
+
+.panel p {
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.panel button {
+  padding: 10px 20px;
+  background: #00c6ff;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  color: #000;
+  font-weight: bold;
+}
+
+.form-box {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  right: 0;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.5s;
+}
+
+.container.signup .form-box {
+  transform: translateX(-100%);
+}
+
+.form {
+  display: none;
+  flex-direction: column;
+  width: 70%;
+}
+
+.form.active {
+  display: flex;
+}
+
+.form h3 {
+  color: #00c6ff;
+  margin-bottom: 20px;
+}
+
+.form input {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+}
+
+.form button {
+  padding: 10px;
+  background: #00c6ff;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
