@@ -98,7 +98,7 @@ else:
         ],
         AttributeDefinitions=[
             {'AttributeName': 'user_email', 'AttributeType': 'S'},
-            {'AttributeName': 'booking_id', 'AttributeType': 'N'}
+            {'AttributeName': 'booking_id', 'AttributeType': 'S'}
         ],
         ProvisionedThroughput={
             'ReadCapacityUnits': 5,
