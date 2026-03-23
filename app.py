@@ -623,7 +623,8 @@ def admin_dashboard():
     # msg = None
 
     if request.method == 'POST':
-        movie_id = request.form['movie_id']
+        # movie_id = request.form['movie_id']
+        movie_id = str(uuid.uuid4())
         title = request.form['title']
         description = request.form['description']
         genre = request.form['genre']
