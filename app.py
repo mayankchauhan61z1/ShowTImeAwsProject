@@ -38,8 +38,8 @@ bookings_table = dynamodb.Table('bookings')
 # SNS
 #=====================
 
-ADMIN_TOPIC_ARN = 'arn:aws:sns:us-east-1:ACCOUNT_ID:AdminNotifications'
-CUSTOMER_TOPIC_ARN = 'arn:aws:sns:us-east-1:ACCOUNT_ID:CustomerNotifications'
+ADMIN_TOPIC_ARN = "arn:aws:sns:us-east-1:045395708809:ADMIN_TOPIC_ARN:244ebf51-ffec-4a4a-b500-c7cea6f95fc5"
+CUSTOMER_TOPIC_ARN = "arn:aws:sns:us-east-1:045395708809:CUSTOMER_TOPIC_ARN:b5552c74-8244-469b-92e9-40a42ad3de4b"
 
 def send_admin_notification(subject, message):
     """Send notification to admin topic (your email only)."""
