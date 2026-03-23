@@ -2,7 +2,7 @@ import boto3
 from werkzeug.security import generate_password_hash
 
 # Connect to DynamoDB (make sure AWS credentials are configured)
-dynamodb = boto3.resource('dynamodb', region_name='ap-south-1')  # change region if needed
+dynamodb = boto3.resource('dynamodb', region_name='us-east-1')  # change region if needed
 
 # Check if table exists
 existing_tables = dynamodb.meta.client.list_tables()['TableNames']
