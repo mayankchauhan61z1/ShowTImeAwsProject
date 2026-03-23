@@ -399,50 +399,118 @@ def logout():
 #==========================
 # Book Ticket 
 #==========================
+# @app.route('/book', methods=['POST'])
+# def book():
+#     if 'user' not in session:
+#         return jsonify({"message": "You must login before booking tickets."}), 403
+
+#     data = request.get_json()
+#     email = session['user']
+#     movie_id = data['movie_id']
+#     seats = int(data['seats'])
+#     theater = data['theater']
+#     showtime = data['showtime']
+
+#     movie = movies.get(movie_id) or slides.get(movie_id)
+#     if not movie:
+#         return jsonify({"message": "Invalid movie selection."}), 400
+
+#     total_amount = seats * movie['price']
+
+#     bookings_table.put_item(Item={
+#         'user_email': email,
+#         'booking_id': str(uuid.uuid4()),
+#         'movie_id': movie_id,
+#         'movie_title': movie['title'],
+#         'seats': seats,
+#         'seat_numbers': data['seat_numbers'],
+#         'amount': total_amount,
+#         'theater': theater,
+#         'showtime': showtime,
+#         'booking_date': datetime.utcnow().isoformat()
+#     })
+#     # Send SNS notification
+#     confirmation_message = (
+#         f"Booking confirmed!\n\n"
+#         f"Movie: {movie['title']}\n"
+#         f"Theater: {theater}\n"
+#         f"Showtime: {showtime}\n"
+#         f"Seats: {seats} ({', '.join(data['seat_numbers'])})\n"
+#         f"Total Amount: ₹{total_amount}\n\n"
+#         f"Thank you for booking with us!"
+#     )
+
+#     send_customer_notification("Movie Ticket Booking Confirmation", confirmation_message)
+
+#     return jsonify({"message": f"Booking confirmed for {movie['title']} ({seats} seats). Total: ₹{total_amount}"})
+
 @app.route('/book', methods=['POST'])
 def book():
     if 'user' not in session:
         return jsonify({"message": "You must login before booking tickets."}), 403
 
-    data = request.get_json()
+    # Try to get JSON first, fallback to form-data
+    data = request.get_json(silent=True)
+    if not data:
+        data = request.form.to_dict(flat=True)
+
+    # Debug logging
+    print("Booking request data:", data)
+    print("Session user:", session.get('user'))
+
+    # Validate required fields
+    required_fields = ['movie_id', 'seats', 'theater', 'showtime', 'seat_numbers']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"Missing field: {field}"}), 400
+
     email = session['user']
     movie_id = data['movie_id']
     seats = int(data['seats'])
     theater = data['theater']
     showtime = data['showtime']
 
+    # Lookup movie
     movie = movies.get(movie_id) or slides.get(movie_id)
     if not movie:
         return jsonify({"message": "Invalid movie selection."}), 400
 
     total_amount = seats * movie['price']
 
+    # Save booking
     bookings_table.put_item(Item={
         'user_email': email,
         'booking_id': str(uuid.uuid4()),
         'movie_id': movie_id,
         'movie_title': movie['title'],
         'seats': seats,
-        'seat_numbers': data['seat_numbers'],
+        'seat_numbers': data['seat_numbers'] if isinstance(data['seat_numbers'], list) else data['seat_numbers'].split(','),
         'amount': total_amount,
         'theater': theater,
         'showtime': showtime,
         'booking_date': datetime.utcnow().isoformat()
     })
-    # Send SNS notification
+
+    # Build confirmation message
+    seat_list = data['seat_numbers'] if isinstance(data['seat_numbers'], list) else data['seat_numbers'].split(',')
     confirmation_message = (
         f"Booking confirmed!\n\n"
         f"Movie: {movie['title']}\n"
         f"Theater: {theater}\n"
         f"Showtime: {showtime}\n"
-        f"Seats: {seats} ({', '.join(data['seat_numbers'])})\n"
+        f"Seats: {seats} ({', '.join(seat_list)})\n"
         f"Total Amount: ₹{total_amount}\n\n"
         f"Thank you for booking with us!"
     )
 
-    send_customer_notification("Movie Ticket Booking Confirmation", confirmation_message)
+    # Send SNS notification safely
+    try:
+        send_customer_notification("Movie Ticket Booking Confirmation", confirmation_message)
+    except Exception as e:
+        print("SNS error:", e)
 
     return jsonify({"message": f"Booking confirmed for {movie['title']} ({seats} seats). Total: ₹{total_amount}"})
+
 
 #=========================
 # already booked tickets
