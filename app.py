@@ -448,16 +448,13 @@ def book():
     if 'user' not in session:
         return jsonify({"message": "You must login before booking tickets."}), 403
 
-    # Try to get JSON first, fallback to form-data
     data = request.get_json(silent=True)
     if not data:
         data = request.form.to_dict(flat=True)
 
-    # Debug logging
     print("Booking request data:", data)
     print("Session user:", session.get('user'))
 
-    # Validate required fields
     required_fields = ['movie_id', 'seats', 'theater', 'showtime', 'seat_numbers']
     for field in required_fields:
         if field not in data:
@@ -469,28 +466,29 @@ def book():
     theater = data['theater']
     showtime = data['showtime']
 
-    # Lookup movie
     movie = movies.get(movie_id) or slides.get(movie_id)
     if not movie:
         return jsonify({"message": "Invalid movie selection."}), 400
 
     total_amount = seats * movie['price']
 
-    # Save booking
-    bookings_table.put_item(Item={
-        'user_email': email,
-        'booking_id': str(uuid.uuid4()),
-        'movie_id': movie_id,
-        'movie_title': movie['title'],
-        'seats': seats,
-        'seat_numbers': data['seat_numbers'] if isinstance(data['seat_numbers'], list) else data['seat_numbers'].split(','),
-        'amount': total_amount,
-        'theater': theater,
-        'showtime': showtime,
-        'booking_date': datetime.utcnow().isoformat()
-    })
+    try:
+        bookings_table.put_item(Item={
+            'user_email': email,
+            'booking_id': str(uuid.uuid4()),
+            'movie_id': movie_id,
+            'movie_title': movie['title'],
+            'seats': seats,
+            'seat_numbers': data['seat_numbers'] if isinstance(data['seat_numbers'], list) else data['seat_numbers'].split(','),
+            'amount': total_amount,
+            'theater': theater,
+            'showtime': showtime,
+            'booking_date': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        print("DynamoDB error:", e)
+        return jsonify({"error": "Booking failed"}), 500
 
-    # Build confirmation message
     seat_list = data['seat_numbers'] if isinstance(data['seat_numbers'], list) else data['seat_numbers'].split(',')
     confirmation_message = (
         f"Booking confirmed!\n\n"
@@ -502,14 +500,12 @@ def book():
         f"Thank you for booking with us!"
     )
 
-    # Send SNS notification safely
     try:
         send_customer_notification("Movie Ticket Booking Confirmation", confirmation_message)
     except Exception as e:
         print("SNS error:", e)
 
     return jsonify({"message": f"Booking confirmed for {movie['title']} ({seats} seats). Total: ₹{total_amount}"})
-
 
 #=========================
 # already booked tickets
