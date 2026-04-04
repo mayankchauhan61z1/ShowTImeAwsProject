@@ -46,4 +46,4 @@ def create_admin(email, name, password):
 if __name__ == "__main__":
     # Replace with your own details
     create_admin("mayankchauhan.61z1@gmail.com", "Mayank Chauhan", "BUKMI@12345")
-    create_admin("mayank.chayhan5002@gmail.com", "Mayank Chauhan", "BUKMI")
+    create_admin("mayank.chauhan5002@gmail.com", "Mayank Chauhan", "BUKMI")
