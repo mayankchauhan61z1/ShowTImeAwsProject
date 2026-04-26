@@ -289,6 +289,25 @@ def home():
 def about():
     return render_template('about.html')
 
+@app.route('/search_suggestions')
+def search_suggestions():
+    query = request.args.get('query', '').lower()
+
+    # Combine movies and slides dictionaries
+    all_movies = {**movies, **slides}
+
+    # Filter by title containing query
+    results = []
+    for movie_id, movie in all_movies.items():
+        if query in movie['title'].lower():
+            results.append({
+                "title": movie["title"],
+                "genre": movie["genre"],
+                "movie_id": movie_id
+            })
+
+    return jsonify(results)
+
 # @app.route('/adminDashbord')
 # def adminDashbord():
 #     return render_template('AdminDashbord.html')
