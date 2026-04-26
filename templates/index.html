@@ -11,8 +11,9 @@
     <navbar>
         <div class="navsearchbar">
             <a class="navhead" id="webname" href="/">Show TIme</a>
-            <input type="text" class="navsearch" placeholder="Search..." /> 
-            <i class="fa-solid fa-magnifying-glass" id="searchlogo"></i>
+            <input type="text" class="navsearch" id="searchInput" placeholder="Search..." /> 
+            <!-- <i class="fa-solid fa-magnifying-glass" id="searchlogo"></i> -->
+            <div id="searchDropdown" class="dropdown"></div>
             {% if 'user' in session %}
               <!-- Show logout if user is logged in -->
               <a href="{{ url_for('logout') }}" class="logoutbutton">Logout</a>
