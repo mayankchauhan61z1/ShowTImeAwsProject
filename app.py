@@ -1,3 +1,4 @@
+
 from flask import Flask, request, render_template, redirect, url_for
 import os
 from flask import jsonify
@@ -34,12 +35,14 @@ users_table = dynamodb.Table('users')
 admin_table = dynamodb.Table('admins')
 contact_table = dynamodb.Table('ContactForm')
 bookings_table = dynamodb.Table('bookings')
+
 #=====================
 # SNS
 #=====================
 
 ADMIN_TOPIC_ARN = "arn:aws:sns:us-east-1:045395708809:ADMIN_TOPIC_ARN"
 CUSTOMER_TOPIC_ARN = "arn:aws:sns:us-east-1:045395708809:CUSTOMER_TOPIC_ARN"
+
 def send_admin_notification(subject, message):
     """Send notification to admin topic (your email only)."""
     try:
@@ -64,18 +67,28 @@ def send_customer_notification(subject, message):
     except ClientError as e:
         print(f"Error sending customer notification: {e}")
 
-def subscribe_customer_email(email):
+def subscribe_customer_email(email, username):
     """Subscribe a customer's email to CustomerNotifications topic."""
     try:
-        response = sns.subscribe(
-            TopicArn=CUSTOMER_TOPIC_ARN,
-            Protocol='email',
-            Endpoint=email
-        )
-        print(f"Subscription request sent to {email}. Confirm it from inbox.")
-    except ClientError as e:
-        print(f"Error subscribing customer email: {e}")
+        response = users_table.get_item(Key={'email': email})
+        user = response.get('Item')
 
+        if user and not user.get('subscribed'):
+            sns.subscribe(
+                TopicArn=CUSTOMER_TOPIC_ARN,
+                Protocol='email',
+                Endpoint=email
+            )
+            users_table.update_item(
+                Key={'email': email},
+                UpdateExpression="set subscribed = :s",
+                ExpressionAttributeValues={':s': True}
+            )
+            print(f"User {username} subscribed to SNS.")
+        else:
+            print(f"User {username} already subscribed. Skipping SNS.")
+    except Exception as e:
+        print(f"Error in subscription logic: {e}")
 
 #==================
 # MOVIE DATA 
@@ -334,20 +347,17 @@ def movie_detail(movie_id):
     return render_template('movie.html', movie_data=movie_data, movie_id=movie_id)
 
 
-#============================
-# User Signup
-#============================
-
-
+#=====================
 # SIGNUP API
+#=====================
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
         return render_template('L&S.html')  # Optional signup page
 
     # POST method
-    name = request.form['name']
-    email = request.form['email']
+    name = request.form.get('name')
+    email = request.form.get('email')
     password = request.form['password']
 
     # Hash the password before storing
@@ -357,24 +367,24 @@ def signup():
         Item={
             'email': email,
             'name': name,
-            'password': hashed_password
+            'password': hashed_password,
+            'subscribed': False   # default flag
         }
     )
+
     # Subscribe user to SNS topic
-    subscribe_customer_email(email)
-    # Send SNS notification
+    subscribe_customer_email(email, name)
+
+    # Send SNS notification to admin
     send_admin_notification("New User Signup", f"User {name} ({email}) has registered.")
 
     msg = "Registration Complete. Please Login to your account"
     return render_template('L&S.html', msg=msg)
 
 
-#============================
-# User Login 
-#============================
-
-
+#=====================
 # LOGIN API
+#=====================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -385,21 +395,20 @@ def login():
     password = request.form['password']
 
     response = users_table.get_item(Key={'email': email})
+    user_item = response.get('Item')
 
-    if 'Item' not in response:
-        flash("User not found", "error")
-        return redirect(url_for('login'))
-
-    stored_password = response['Item']['password']
-
-    if check_password_hash(stored_password, password):
+    if user_item and check_password_hash(user_item['password'], password):
+        username = user_item.get('name') or user_item.get('username')
         session['user'] = email
-        session['session_id'] = str(uuid.uuid4())  # unique per login
-        
+        session['username'] = username
+
+        # Ensure subscription (will skip if already subscribed)
+        subscribe_customer_email(email, username)
+
         flash("Login successful!", "success")
         return redirect(url_for('home'))
     else:
-        flash("Wrong password", "error")
+        flash("Wrong email or password", "error")
         return redirect(url_for('login'))
 
 #==========================
@@ -520,11 +529,17 @@ def book():
     )
 
     try:
+        # Send to admin
+        send_admin_notification("Movie Ticket Booking Confirmation", confirmation_message)
+
+        # Send to customer
         send_customer_notification("Movie Ticket Booking Confirmation", confirmation_message)
+
     except Exception as e:
         print("SNS error:", e)
 
     return jsonify({"message": f"Booking confirmed for {movie['title']} ({seats} seats). Total: ₹{total_amount}"})
+
 
 #=========================
 # already booked tickets
