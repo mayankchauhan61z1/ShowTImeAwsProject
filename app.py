@@ -332,11 +332,18 @@ def search_suggestions():
 # def adminDashbord():
 #     return render_template('AdminDashbord.html')
 
-@app.route('/admindashboard')
-def admin_dashboard_alt():
-    if session.get('role') != 'admin':
-        return "Unauthorized", 403
-    return render_template('AdminDashbord.html', movies=movies)
+#@app.route('/admindashboard')
+#def admin_dashboard_alt():
+#    if session.get('role') != 'admin':
+#        return "Unauthorized", 403
+    # Fetch from DynamoDB
+#    response = moviesdata_table.scan()
+#    db_movies = {m['movie_id']: m for m in response.get('Items', [])}
+    
+    # Merge hardcoded + Database movies
+#    all_movies = {**movies, **db_movies}
+
+#    return render_template('AdminDashbord.html', movies=movies)
 
 @app.route('/AdminLogin')
 def AdminLogin():
@@ -722,7 +729,7 @@ def admin_login():
     if check_password_hash(stored_password, password):
         session['role'] = 'admin'
         session['user'] = email
-        return redirect(url_for('admin_dashboard_alt'))
+        return redirect(url_for('admin_dashboard'))
     else:
         return render_template('AdminL&S.html', msg="Wrong password")
 
@@ -763,7 +770,11 @@ def contact():
 def admin_dashboard():
     if session.get('role') != 'admin':
         return "Unauthorized", 403
-
+    # Fetch from DB so they show up on login/refresh
+    response = moviesdata_table.scan()
+    db_movies = {m['movie_id']: m for m in response.get('Items', [])}
+    # Merge hardcore local and dynamobd data
+    all_movies = {**movies, **db_movies}
     # msg = None
 
     if request.method == 'POST':
@@ -811,13 +822,6 @@ def admin_dashboard():
         except Exception as e:
             print(f"Error saving to DynamoDB: {e}")
             flash("Error: Could not save movie data.")
-
-    # 4. Fetch all movies (Code + DB) to display on dashboard
-    response = moviesdata_table.scan()
-    db_movies = {m['movie_id']: m for m in response.get('Items', [])}
-    
-    # Merge hardcoded and DB movies
-    all_movies = {**movies, **db_movies}
 
     return render_template('AdminDashbord.html', movies=all_movies)
 
