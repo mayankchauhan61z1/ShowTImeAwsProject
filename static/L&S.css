@@ -94,3 +94,14 @@ body {
   font-weight: bold;
   cursor: pointer;
 }
+#forgotLink {
+  color: #00c6ff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+#forgotLink:hover {
+  text-decoration: underline;
+  color: #0088cc;
+}

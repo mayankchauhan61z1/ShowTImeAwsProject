@@ -108,6 +108,31 @@ else:
     bookings_table.meta.client.get_waiter('table_exists').wait(TableName='bookings')
     bookings_table.load()
 
+#=======================
+# New Movies Table
+#=======================
+if 'moviesdata' in existing_tables:
+    moviesdata_table = dynamodb.Table('moviesdata')
+    print("Table 'moviesdata' already exists.")
+else:
+    moviesdata_table = dynamodb.create_table(
+        TableName='moviesdata',
+        KeySchema=[
+            {'AttributeName': 'movie_id', 'KeyType': 'HASH'}
+        ],
+        AttributeDefinitions=[
+            {'AttributeName': 'movie_id', 'AttributeType': 'S'}
+        ],
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 5,
+            'WriteCapacityUnits': 5
+        }
+    )
+    # Fix: Use 'moviesdata_table' instead of 'movies_table'
+    moviesdata_table.meta.client.get_waiter('table_exists').wait(TableName='moviesdata')
+    print("Table 'moviesdata' created successfully!")
+
+
 # print("Table 'bookings' created successfully!")
 # print out some data about the table   
 # print("Table name: ",table.table_name)

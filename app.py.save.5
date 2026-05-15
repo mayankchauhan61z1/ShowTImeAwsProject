@@ -235,7 +235,7 @@ slides ={
     "MOV0012": {
         "title": "Noble Reincarnation: Born Blessed, So I'll Obtain Unlimited Power",
         "description": "Noah, the world's strongest six-year-old, holds the fortunate position of being the Thirteenth Prince of the emperor. Born with an infinite level cap",
-        "poster": "Images/nobalReincarnationPoster.jpg",
+        "poster": "Images/nobleReincarnationPoster.jpg",
         "genre": "Fantasy, Isekai, Adventure",
         "release_date": "2026-01-08",
         "duration": "23m each episode",
@@ -279,30 +279,14 @@ slides ={
 
 @app.route('/')
 def index():
-    # Fetch all movies from DynamoDB
-    response = moviesdata_table.scan()
-    db_movies = {m['movie_id']: m for m in response.get('Items', [])}
-    
-    # Merge: Code Movies + Database Movies
-    all_movies = {**movies, **db_movies}
     return render_template('index.html', movies=movies, slides=slides)
 
 @app.route('/home')
 def home():
-    # 1. Fetch all movies from DynamoDB
-    response = moviesdata_table.scan()
-    db_movies = {m['movie_id']: m for m in response.get('Items', [])}
-
-    # 2. Merge: Code Movies + Database Movies
-    all_movies = {**movies, **db_movies}
-
-    # 3. Session check (your style)
     if 'user' in session:
-        return render_template('index.html', name=session['user'], movies=all_movies, slides=slides)
+        return render_template('index.html', name=session['user'], movies=movies, slides=slides)
     else:
-        return render_template('index.html', name="Guest", movies=all_movies, slides=slides)
-
-
+        return render_template('index.html', name="Guest", movies=movies, slides=slides)
 
 # for direction to about page
 @app.route('/about')
@@ -344,22 +328,13 @@ def AdminLogin():
 
 @app.route('/movie/<movie_id>')
 def movie_detail(movie_id):
-    # 1. Check hardcoded movies first
-    movie_data = movies.get(movie_id) or slides.get(movie_id)
-    
-    # 2. If not found in code, check DynamoDB
-    if not movie_data:
-        try:
-            response = moviesdata_table.get_item(Key={'movie_id': movie_id})
-            movie_data = response.get('Item')
-        except Exception as e:
-            print(f"DynamoDB Error: {e}")
-            return "Database connection error", 500
-
-    # 3. If STILL not found, show error
-    if not movie_data:
+    if movie_id in movies:
+        movie_data = movies[movie_id]
+    elif movie_id in slides:
+        movie_data = slides[movie_id]
+    else:
         return "Movie not found", 404
-        
+
     return render_template('movie.html', movie_data=movie_data, movie_id=movie_id)
 
 
@@ -386,16 +361,11 @@ def signup():
                 'name': name,
                 'password': hashed_password,
                 'subscribed': False
-            },
-            ConditionExpression='attribute_not_exists(email)'
+            }
         )
     except Exception as e:
-        if "ConditionalCheckFailedException" in str(e):
-            flash("An account with this email already exists. Please login.")
-        else:
-            print(f"DB Error: {e}")
-            flash("Database error. Please try again.")
-        return redirect(url_for('signup'))
+        print(f"DB Error: {e}")
+        return "Database Error", 500
 
     # 2. SES and SNS Notifications
     try:
@@ -443,80 +413,6 @@ def login():
     else:
         flash("Wrong email or password", "error")
         return redirect(url_for('login'))
-
-#==========================
-#Forgot Password
-#==========================
-
-@app.route('/forgot', methods=['GET', 'POST'])
-def forgot_password():
-    if request.method == 'POST':
-        email = request.form['email']
-        response = users_table.get_item(Key={'email': email})
-        user = response.get('Item')
-
-        if not user:
-            flash("Email not registered.")
-            return redirect(url_for('forgot_password'))
-
-        # Generate reset token and update DynamoDB
-        reset_token = str(uuid.uuid4())
-        users_table.update_item(
-            Key={'email': email},
-            UpdateExpression="set reset_token=:t",
-            ExpressionAttributeValues={':t': reset_token}
-        )
-
-        # Build reset link
-        reset_link = f"http://35.153.200.170/reset/{reset_token}"
-
-        # Using your existing helper function!
-        subject = "Password Reset - ShowTime"
-        message = f"Click here to reset your password: {reset_link}"
-        
-        send_customer_email(email, subject, message)
-
-        flash("Password reset link sent to your email.")
-        return redirect(url_for('login'))
-
-    return render_template('forgot.html')
-
-
-#==========================
-#Reset Password
-#==========================
-
-@app.route('/reset/<token>', methods=['GET', 'POST'])
-def reset_password(token):
-    if request.method == 'POST':
-        new_password = request.form['password']
-        # Ensure your app uses the same hashing method as your signup
-        hashed_pw = generate_password_hash(new_password)
-
-        # Find user with this specific reset_token
-        response = users_table.scan(
-            FilterExpression=Attr('reset_token').eq(token)
-        )
-        items = response.get('Items', [])
-
-        if not items:
-            flash("Invalid or expired token.")
-            return redirect(url_for('login'))
-
-        email = items[0]['email']
-
-        # Update password and CLEAN UP (remove the token so it can't be used again)
-        users_table.update_item(
-            Key={'email': email},
-            UpdateExpression="set password=:p remove reset_token",
-            ExpressionAttributeValues={':p': hashed_pw}
-        )
-
-        flash("Password updated successfully. Please log in.")
-        return redirect(url_for('login'))
-
-    # GET request → show reset page with the token passed to the form
-    return render_template('reset.html', token=token)
 
 #==========================
 # Logout
@@ -583,72 +479,85 @@ def book():
     if 'user' not in session:
         return jsonify({"message": "You must login before booking tickets."}), 403
 
-    # Support JSON and Form data
-    data = request.get_json(silent=True) or request.form.to_dict()
-    customer_email = session.get('user')
-    movie_id = data.get('movie_id')
-    
-    # 1. Fetch Movie Details (Code or DB)
+    data = request.get_json(silent=True)
+    if not data:
+        data = request.form.to_dict(flat=True)
+
+    print("Booking request data:", data)
+    print("Session user:", session.get('user'))
+
+    required_fields = ['movie_id', 'seats', 'theater', 'showtime', 'seat_numbers']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"Missing field: {field}"}), 400
+
+    email = session['user']
+    movie_id = data['movie_id']
+    seats = int(data['seats'])
+    theater = data['theater']
+    showtime = data['showtime']
+
     movie = movies.get(movie_id) or slides.get(movie_id)
     if not movie:
-        res = moviesdata_table.get_item(Key={'movie_id': movie_id})
-        movie = res.get('Item')
+    # Check your new table if not in the dictionary
+    res = moviesdata_table.get_item(Key={'movie_id': movie_id})
+    movie = res.get('Item')
 
     if not movie:
-        return jsonify({"message": "Movie not found."}), 400
+        return jsonify({"message": "Invalid movie selection."}), 400
 
-    # 2. Calculate values
-    seats = int(data.get('seats', 1))
-    total_amount = seats * movie.get('price', 0)
-    theater = data.get('theater', 'Default Theater')
-    showtime = data.get('showtime', 'Default Time')
-    seat_list = data.get('seat_numbers', [])
-    if isinstance(seat_list, str): seat_list = seat_list.split(',')
-
-    # 3. Create the Summary Message
-    confirmation_message = (
-        f"Booking Confirmed!\n\n"
-        f"Movie: {movie['title']}\n"
-        f"Theater: {theater}\n"
-        f"Showtime: {showtime}\n"
-        f"Seats: {seats} ({', '.join(seat_list)})\n"
-        f"Amount Paid: ₹{total_amount}\n\n"
-        f"Thank you for booking with us! "
-        f"User: {customer_email}"
-    )
+    total_amount = seats * movie['price']
 
     try:
-        # A. Save to DynamoDB
         bookings_table.put_item(Item={
-            'user_email': customer_email,
+            'user_email': email,
             'booking_id': str(uuid.uuid4()),
             'movie_id': movie_id,
             'movie_title': movie['title'],
             'seats': seats,
-            'seat_numbers': seat_list,
+            'seat_numbers': data['seat_numbers'] if isinstance(data['seat_numbers'], list) else data['seat_numbers'].split(','),
             'amount': total_amount,
             'theater': theater,
             'showtime': showtime,
             'booking_date': datetime.utcnow().isoformat()
         })
-
-        # B. Send SNS Admin Alert (So you know you made a sale!)
-        try:
-            send_admin_notification("New Ticket Sold!", confirmation_message)
-        except Exception as e:
-            print(f"SNS Error: {e}")
-
-        # C. Send SES Customer Email
-        try:
-            send_customer_email(customer_email, f"Ticket: {movie['title']}", confirmation_message)
-        except Exception as e:
-            print(f"SES Error: {e}")
-
-        return jsonify({"message": f"Booking successful for {movie['title']}!"})
-
     except Exception as e:
-        print(f"Critical Booking Error: {e}")
-        return jsonify({"error": "Database error. Please try again."}), 500
+        print("DynamoDB error:", e)
+        return jsonify({"error": "Booking failed"}), 500
+
+    seat_list = data['seat_numbers'] if isinstance(data['seat_numbers'], list) else data['seat_numbers'].split(',')
+    confirmation_message = (
+        f"Booking confirmed!\n\n"
+        f"Movie: {movie['title']}\n"
+        f"Theater: {theater}\n"
+        f"Showtime: {showtime}\n"
+        f"Seats: {seats} ({', '.join(seat_list)})\n"
+        f"Total Amount: ₹{total_amount}\n\n"
+        f"Thank you for booking with us!"
+    )
+    
+    # Communication
+    customer_email = session.get('email') or session.get('user')
+
+    # 1. Send Admin Notification (SNS) - Always first
+    try:
+        send_admin_notification("New Booking Alert", confirmation_message)
+    except Exception as e:
+        print(f"Admin SNS failed: {e}")
+
+    # 2. Send Customer Email (SES)
+    # Change 'user' to 'email' if that is what your login route saves!
+
+    if customer_email:
+        try:
+            send_customer_email(customer_email, "Your Movie Ticket Confirmation", confirmation_message)
+            print(f"DEBUG: Success! Sent to {customer_email}")
+        except Exception as e:
+            print(f"DEBUG: SES failed for {customer_email}: {e}")
+    
+    else:
+        print("No customer email found in session!")
+    return jsonify({"message": f"Booking confirmed for {movie['title']} ({seats} seats). Total: ₹{total_amount}"})
 
 
 #=========================
@@ -764,10 +673,7 @@ def admin_dashboard():
     if session.get('role') != 'admin':
         return "Unauthorized", 403
 
-    # msg = None
-
     if request.method == 'POST':
-        # movie_id = request.form['movie_id']
         movie_id = str(uuid.uuid4())
         title = request.form['title']
         description = request.form['description']
@@ -779,7 +685,7 @@ def admin_dashboard():
         duration = request.form['duration']
         theaters = request.form['theaters'].split(',')
         showtimes = request.form['showtimes'].split(',')
-
+        
         poster_file = request.files['poster']
         filename = secure_filename(poster_file.filename)
         poster_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -787,58 +693,40 @@ def admin_dashboard():
 
         movie_item = {
             'movie_id': movie_id,
-            'title': request.form['title'],
-            'description': request.form['description'],
-            'genre': request.form['genre'],
-            'release_date': request.form['release_date'],
-            'price': int(request.form['price']),
-            'address': request.form['address'],
-            'theatersName': request.form['theatersName'],
-            'duration': request.form['duration'],
-            'theaters': request.form['theaters'].split(','),
-            'showtimes': request.form['showtimes'].split(','),
-            'poster': f"posters/{filename}"
+            'title': title,
+            'description': description,
+            'genre': genre,
+            'release_date': release_date,
+            'price': price,
+            'address': address,
+            'theatersName': theatersName,
+            'duration': duration,
+            'poster': f"posters/{filename}",
+            'theaters': theaters,
+            'showtimes': showtimes
         }
 
-        # 3. Save to DynamoDB
-        try:
-            moviesdata_table.put_item(Item=movie_item)
-            
-            # Send notification
-            send_admin_notification("New Movie Added", f"Movie '{movie_item['title']}' added.")
-            flash(f"Movie '{movie_item['title']}' added successfully!")
-            
-        except Exception as e:
-            print(f"Error saving to DynamoDB: {e}")
-            flash("Error: Could not save movie data.")
+        # 1. Update local dictionary
+        movies[movie_id] = movie_item
+        
+        # 2. Save to moviesdata table permanently
+        moviesdata_table.put_item(Item=movie_item)
 
-    # 4. Fetch all movies (Code + DB) to display on dashboard
-    response = moviesdata_table.scan()
-    db_movies = {m['movie_id']: m for m in response.get('Items', [])}
-    
-    # Merge hardcoded and DB movies
-    all_movies = {**movies, **db_movies}
+        msg = f"Movie '{title}' added successfully!"
+        send_admin_notification("New Movie Added", f"Movie '{title}' has been added.")
+        return render_template('AdminDashbord.html', msg=msg, movies=movies)
 
-    return render_template('AdminDashbord.html', movies=all_movies)
+    return render_template('AdminDashbord.html', movies=movies)
 
 @app.route('/delete/<movie_id>', methods=['POST'])
 def delete_movie(movie_id):
-    if session.get('role') != 'admin':
-        return "Unauthorized", 403
-
-    # 1. Check if movie exists in hardcoded dictionary
     if movie_id in movies:
+        poster_path = os.path.join('static', movies[movie_id]['poster'])
+        if os.path.exists(poster_path) and movies[movie_id]['poster'].startswith("posters/"):
+            os.remove(poster_path)
         del movies[movie_id]
-    
-    # 2. Always attempt to delete from DynamoDB
-    try:
-        moviesdata_table.delete_item(Key={'movie_id': movie_id})
-        flash("Movie deleted successfully!")
-    except Exception as e:
-        print(f"Database delete error: {e}")
-        flash("Error: Could not delete from database.")
+    return redirect(url_for('admin_dashboard_alt'))
 
-    return redirect(url_for('admin_dashboard'))
 
 # NEW
 

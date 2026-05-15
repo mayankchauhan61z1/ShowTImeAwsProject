@@ -8,6 +8,18 @@
 </head>
 <body>
 
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div id="flash-container" style="position: absolute; top: 10px; width: 100%; z-index: 9999; display: flex; flex-direction: column; align-items: center; pointer-events: none;">
+      {% for message in messages %}
+        <div class="flash-message" data-message="{{ message }}" style="background: #00c6ff; color: #fff; padding: 12px 25px; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: auto; margin-bottom: 5px;">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 <div class="container">
   <div class="panel left">
     <h2>WELCOME!</h2>
@@ -28,6 +40,9 @@
       <input type="email" name="email" placeholder="Email" required>
       <input type="password" name="password" placeholder="Password" required>
       <button type="submit">Login</button>
+      <p style="margin-top:10px; font-size:14px;">
+         <a href="/forgot" id="forgotLink">Forgot Password?</a>
+      </p>
     </form>
 
     <!-- Signup -->

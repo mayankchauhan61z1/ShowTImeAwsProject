@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Forgot Password</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='L&S.css') }}">
+  <style>
+    /* Extra styling just for forgot page */
+    .forgot-container {
+      width: 400px;
+      background: #0d1b2a;
+      border-radius: 15px;
+      padding: 30px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    .forgot-container h3 {
+      color: #00c6ff;
+      margin-bottom: 20px;
+    }
+
+    .forgot-container input {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    .forgot-container button {
+      width: 100%;
+      padding: 10px;
+      background: #00c6ff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .forgot-container a {
+      display: block;
+      margin-top: 15px;
+      color: #00c6ff;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .forgot-container a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" style="justify-content:center; align-items:center;">
+    <div class="forgot-container">
+      <h3>Forgot Password</h3>
+      <p>Enter your registered email to receive a reset link.</p>
+      <form action="/forgot" method="POST">
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <button type="submit">Send Reset Link</button>
+      </form>
+      <a href="/login">Back to Login</a>
+    </div>
+  </div>
+</body>
+</html>
