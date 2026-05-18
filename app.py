@@ -306,23 +306,36 @@ def home():
 
 # for direction to about page
 @app.route('/about')
-def about():
-    return render_template('about.html')
-
 @app.route('/search_suggestions')
 def search_suggestions():
     query = request.args.get('query', '').lower()
-
-    # Combine movies and slides dictionaries
-    all_movies = {**movies, **slides}
-
-    # Filter by title containing query
     results = []
+
+    # 1. Combine local hardcoded dictionaries safely
+    local_movies = {**movies, **slides}
+
+    # 2. Fetch live movies from DynamoDB safely
+    db_movies = {}
+    try:
+        response = moviesdata_table.scan()
+        db_movies = {m['movie_id']: m for m in response.get('Items', [])}
+    except Exception as e:
+        print(f"DynamoDB Search Scan Error: {e}")
+
+    # 3. Merge everything together (Local + Database)
+    all_movies = {**local_movies, **db_movies}
+
+    # 4. Loop through everything safely
     for movie_id, movie in all_movies.items():
-        if query in movie['title'].lower():
+        # CRITICAL FIX: Look for both lowercase and uppercase keys to prevent KeyError crashes!
+        movie_title = movie.get('title') or movie.get('Title') or ""
+        movie_genre = movie.get('genre') or movie.get('Genre') or "N/A"
+
+        # Check if the search query matches the title
+        if query in movie_title.lower():
             results.append({
-                "title": movie["title"],
-                "genre": movie["genre"],
+                "title": movie_title,
+                "genre": movie_genre,
                 "movie_id": movie_id
             })
 
