@@ -285,7 +285,13 @@ def index():
     
     # Merge: Code Movies + Database Movies
     all_movies = {**movies, **db_movies}
-    return render_template('index.html', movies=movies, slides=slides)
+
+# 3. Session check so it recognizes logged-in users instantly
+    if 'user' in session:
+        return render_template('index.html', name=session['user'], movies=all_movies, slides=slides)
+    else:
+        return render_template('index.html', name="Guest", movies=all_movies, slides=slides)
+
 
 @app.route('/home')
 def home():
