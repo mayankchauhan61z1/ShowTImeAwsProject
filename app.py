@@ -15,6 +15,9 @@ import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+import os
+
+app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
 # app.secret_key = 'your_secret_key'  # Replace with a secure secret key
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 app.config['SESSION_PERMANENT'] = False
@@ -50,9 +53,8 @@ moviesdata_table = dynamodb.Table('moviesdata') # for store admin new movies
 #=====================
 # SNS
 #=====================
-
-ADMIN_TOPIC_ARN = "arn:aws:sns:us-east-1:045395708809:ADMIN_TOPIC_ARN"
-CUSTOMER_TOPIC_ARN = "arn:aws:sns:us-east-1:045395708809:CUSTOMER_TOPIC_ARN"
+ADMIN_TOPIC_ARN = "arn:aws:sns:us-east-1:174683182882:showtime-admin-notifications"
+CUSTOMER_TOPIC_ARN = "arn:aws:sns:us-east-1:174683182882:showtime-admin-notifications"
 
 def send_admin_notification(subject, message):
     """Send notification to admin topic (your email only)."""
@@ -70,7 +72,7 @@ def send_customer_email(email, subject, message):
     """Send booking confirmation directly to one customer email using SES."""
     try:
         response = ses.send_email(
-            Source="mayankchauhan.61z1@gmail.com",  # sender (must be verified in SES)
+            Source="Krishnanandjha.dev@gmail.com",  # sender (must be verified in SES)
             Destination={'ToAddresses': [email]},      # receiver (customer who booked)
             Message={
                 'Subject': {'Data': subject},
