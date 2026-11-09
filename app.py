@@ -30,11 +30,22 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 #======================
 # DynamoDB connection
 #======================
+AWS_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
 
-dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-sns = boto3.client('sns', region_name='us-east-1')
-ses = boto3.client('ses', region_name='us-east-1')
-def invite_customer_to_ses(email):
+dynamodb = boto3.resource(
+    "dynamodb",
+    region_name=AWS_REGION
+)
+
+sns = boto3.client(
+    "sns",
+    region_name=AWS_REGION
+)
+
+ses = boto3.client(
+    "ses",
+    region_name=AWS_REGION
+)
     try:
         # This triggers the AWS Verification email to the customer automatically
         ses.verify_email_identity(EmailAddress=email)
