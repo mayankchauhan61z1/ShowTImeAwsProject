@@ -27,9 +27,10 @@ if (flashBox) {
 
     // 2. Logic to switch to Signup view if an account error exists
     const allMessages = document.querySelectorAll('.flash-message');
-    allMessages.forEach(msg => {
-        const text = msg.getAttribute('data-msg').toLowerCase();
-        if (text.includes("exists") || text.includes("registered")) {
+    allMessages.forEach(msg => 
+        {
+    const text = (msg.getAttribute('data-message') || '').toLowerCase();        
+    if (text.includes("exists") || text.includes("registered")) {
             // This matches your existing JS variables
             container.classList.add("signup");
             loginForm.classList.remove("active");

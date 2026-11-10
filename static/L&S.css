@@ -1,107 +1,351 @@
+
+/* =========================================
+   SHOWTIME - PREMIUM LOGIN & SIGNUP
+   Purple + Pink Glassmorphism Theme
+========================================= */
+
+:root {
+    --background: #080711;
+    --panel: #151123;
+    --purple: #8b5cf6;
+    --pink: #f472b6;
+    --white: #ffffff;
+    --muted: #b9b3c9;
+    --border: rgba(255,255,255,0.12);
+}
+
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 body {
-  height: 100vh;
-  background: linear-gradient(120deg,#0f2027,#203a43,#2c5364);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    min-height: 100vh;
+    padding: 25px;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(139,92,246,0.22), transparent 35%),
+        radial-gradient(circle at 85% 80%, rgba(244,114,182,0.16), transparent 35%),
+        var(--background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
 }
+
+/* =========================================
+   MAIN CONTAINER
+========================================= */
 
 .container {
-  width: 850px;
-  height: 450px;
-  background: #0d1b2a;
-  border-radius: 15px;
-  position: relative;
-  overflow: hidden;
-  display: flex;
+    width: min(950px, 100%);
+    min-height: 540px;
+    background: rgba(21,17,35,0.92);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.55);
+    backdrop-filter: blur(20px);
 }
 
+/* =========================================
+   WELCOME PANELS
+========================================= */
+
 .panel {
-  width: 50%;
-  padding: 60px;
-  color: #fff;
+    width: 50%;
+    padding: 55px 45px;
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.panel.left {
+    background: linear-gradient(
+        145deg,
+        rgba(139,92,246,0.20),
+        rgba(244,114,182,0.07)
+    );
+}
+
+.panel.right {
+    background: linear-gradient(
+        145deg,
+        rgba(244,114,182,0.10),
+        rgba(139,92,246,0.16)
+    );
 }
 
 .panel h2 {
-  margin-bottom: 10px;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.7px;
+    margin-bottom: 14px;
+    background: linear-gradient(100deg, #ffffff, #e9b7ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .panel p {
-  margin-bottom: 20px;
-  font-size: 14px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 25px;
 }
+
+/* Welcome panel buttons */
 
 .panel button {
-  padding: 10px 20px;
-  background: #00c6ff;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  color: #000;
-  font-weight: bold;
+    width: fit-content;
+    min-width: 125px;
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid var(--pink);
+    border-radius: 25px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    transition: 0.3s ease;
 }
 
+.panel button:hover {
+    background: linear-gradient(110deg, var(--purple), var(--pink));
+    border-color: transparent;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(244,114,182,0.25);
+}
+
+/* =========================================
+   FORM BOX
+========================================= */
+
 .form-box {
-  position: absolute;
-  width: 50%;
-  height: 100%;
-  right: 0;
-  background: #111;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.5s;
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    right: 0;
+    top: 0;
+    background: #100d1c;
+    border-left: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.55s cubic-bezier(0.68,-0.15,0.25,1.15);
+    z-index: 2;
 }
 
 .container.signup .form-box {
-  transform: translateX(-100%);
+    transform: translateX(-100%);
 }
 
+/* =========================================
+   LOGIN / SIGNUP FORMS
+========================================= */
+
 .form {
-  display: none;
-  flex-direction: column;
-  width: 70%;
+    display: none;
+    flex-direction: column;
+    width: 75%;
+    max-width: 340px;
+    animation: formAppear 0.4s ease;
 }
 
 .form.active {
-  display: flex;
+    display: flex;
+}
+
+@keyframes formAppear {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .form h3 {
-  color: #00c6ff;
-  margin-bottom: 20px;
+    color: white;
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 28px;
+    text-align: center;
 }
+
+.form h3::after {
+    content: "";
+    display: block;
+    width: 48px;
+    height: 3px;
+    margin: 10px auto 0;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--purple), var(--pink));
+}
+
+/* Input fields */
 
 .form input {
-  margin-bottom: 15px;
-  padding: 10px;
-  border-radius: 5px;
-  border: none;
+    width: 100%;
+    margin-bottom: 17px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    outline: none;
+    background: #1c172b;
+    color: white;
+    font-size: 14px;
+    transition: 0.3s ease;
 }
 
-.form button {
-  padding: 10px;
-  background: #00c6ff;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
+.form input::placeholder {
+    color: #938ba5;
 }
+
+.form input:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 15px rgba(139,92,246,0.20);
+}
+
+/* Form submit buttons */
+
+.form button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 5px;
+    background: linear-gradient(110deg, var(--purple-dark, #6d28d9), var(--pink));
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(139,92,246,0.30);
+}
+
+/* Forgot password */
+
 #forgotLink {
-  color: #00c6ff;
-  text-decoration: none;
-  font-weight: bold;
-  transition: 0.3s;
+    display: inline-block;
+    color: var(--pink);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.3s;
 }
 
 #forgotLink:hover {
-  text-decoration: underline;
-  color: #0088cc;
+    color: #c4a0ff;
+    text-decoration: underline;
+}
+
+/* =========================================
+   FLASH MESSAGES
+========================================= */
+
+#flash-container {
+    position: fixed !important;
+    top: 15px !important;
+    left: 0;
+    width: 100%;
+    z-index: 9999;
+}
+
+.flash-message {
+    max-width: 90%;
+    background: #211832 !important;
+    color: white !important;
+    border: 1px solid rgba(244,114,182,0.5);
+    border-left: 4px solid var(--pink);
+    border-radius: 10px !important;
+    padding: 13px 22px !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4) !important;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+@media (max-width: 700px) {
+
+    body {
+        padding: 15px;
+        min-height: 100vh;
+    }
+
+    .container {
+        min-height: 680px;
+        flex-direction: column;
+        border-radius: 18px;
+    }
+
+    .panel {
+        width: 100%;
+        min-height: 150px;
+        padding: 22px 25px;
+    }
+
+    .panel h2 {
+        font-size: 23px;
+        margin-bottom: 7px;
+    }
+
+    .panel p {
+        margin-bottom: 12px;
+        font-size: 12px;
+    }
+
+    .panel button {
+        min-width: 105px;
+        padding: 9px 18px;
+    }
+
+    .form-box {
+        width: 100%;
+        height: 380px;
+        top: 300px;
+        right: 0;
+        border-left: none;
+        border-top: 1px solid var(--border);
+    }
+
+    .container.signup .form-box {
+        transform: translateY(-300px);
+    }
+
+    .form {
+        width: 80%;
+    }
+
+    .form h3 {
+        font-size: 25px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 380px) {
+
+    .panel {
+        padding: 18px;
+    }
+
+    .form {
+        width: 85%;
+    }
+
+    .form input {
+        padding: 12px;
+    }
 }

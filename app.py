@@ -17,13 +17,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 import os
 
-app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
-# app.secret_key = 'your_secret_key'  # Replace with a secure secret key
-app.secret_key = os.environ.get("FLASK_SECRET_KEY")
-app.config['SESSION_PERMANENT'] = False
-
-app.config['UPLOAD_FOLDER'] = 'static/posters'
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # remove 8 comment when get dynamodb working
 
@@ -46,13 +39,17 @@ ses = boto3.client(
     "ses",
     region_name=AWS_REGION
 )
+
+def invite_customer_to_ses(email):
     try:
-        # This triggers the AWS Verification email to the customer automatically
         ses.verify_email_identity(EmailAddress=email)
         print(f"Verification email sent to {email}")
     except Exception as e:
         print(f"SES Invite Error: {e}")
 
+
+# dynomodbtable(create these tables in dynamodb manually)
+users_table = dynamodb.Table('users')
 
 # dynomodbtable(create these tables in dynamodb manually)
 users_table = dynamodb.Table('users') # for store user data(login and signup)

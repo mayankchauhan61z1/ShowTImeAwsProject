@@ -1,89 +1,191 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>{{ movie_data.title }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='movie.css') }}">
+    <title>{{ movie_data.title }} | ShowTime</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='movie.css') }}">
 </head>
 
 <body>
 
-  <!-- MOVIE INFO -->
-  <div class="movie-container">
-    <div class="movie-poster">
-      <img src="{{ url_for('static', filename=movie_data.poster) }}">
-    </div>
+    <!-- MOVIE DETAILS -->
+    <section class="movie-container">
 
-    <div class="movie-description">
-      <h2>{{ movie_data.title }}</h2>
+        <div class="movie-poster">
+            <img
+                src="{{ url_for('static', filename=movie_data.poster) }}"
+                alt="{{ movie_data.title }} poster">
+        </div>
 
-      <div class="meta">
-        <span>{{ movie_data.genre }}</span>
-        <span><i class="fa-solid fa-calendar"></i> {{ movie_data.release_date }}</span>
-        <span><i class="fa-solid fa-clock"></i> {{ movie_data.duration }}</span>
-        <span>Price: ₹{{ movie_data.price }}</span>
-      </div>
+        <div class="movie-description">
 
-      <p>{{ movie_data.description }}</p>
-      <h3>Theater Name : {{ movie_data.theatersName }}</h3>
-      <p><i class="fa-solid fa-map-marker-alt"></i>Address: {{ movie_data.address }}</p>
-    </div>
-  </div>
+            <span class="movie-label">NOW SHOWING</span>
 
-  <!-- WRAPPER -->
-  <div class="booking-wrapper">
+            <h2>{{ movie_data.title }}</h2>
 
-    <!-- LEFT SIDE -->
-    <div class="booking-section">
-      <h3>Book Your Ticket</h3>
+            <div class="meta">
+                <span>{{ movie_data.genre }}</span>
 
-      <div class="select-row">
-        <label>Theater:</label>
-        <select>
-          {% for t in movie_data.theaters %}
-          <option>{{ t }}</option>
-          {% endfor %}
-        </select>
+                <span>
+                    <i class="fa-solid fa-calendar"></i>
+                    {{ movie_data.release_date }}
+                </span>
 
-        <label>Show Time:</label>
-        <select>
-          {% for s in movie_data.showtimes %}
-          <option>{{ s }}</option>
-          {% endfor %}
-        </select>
-      </div>
+                <span>
+                    <i class="fa-solid fa-clock"></i>
+                    {{ movie_data.duration }}
+                </span>
 
-      <!-- Seat matrix with price injected -->
-      <div class="seat-matrix" id="seatMatrix" data-price="{{ movie_data.price }}"></div>
-    </div>
+                <span>
+                    <i class="fa-solid fa-ticket"></i>
+                    ₹{{ movie_data.price }}
+                </span>
+            </div>
 
-    <!-- RIGHT SIDE BILL PANEL -->
-    <div class="bill-panel">
-      <h3>Booking Summary</h3>
+            <p>{{ movie_data.description }}</p>
 
-      <p><strong>Selected Seats:</strong></p>
-      <p id="selectedSeats">None</p>
+            <h3>{{ movie_data.theatersName }}</h3>
 
-      <hr>
+            <p>
+                <i class="fa-solid fa-location-dot"></i>
+                {{ movie_data.address }}
+            </p>
 
-      <p>Price per seat: ₹{{ movie_data.price }}</p>
-      <p>Total Seats: <span id="seatCount">0</span></p>
+        </div>
+    </section>
 
-      <h4>Total Amount: ₹<span id="totalAmount">0</span></h4>
 
-      <button onclick="bookTicket()">Confirm Booking</button>
-    </div>
+    <!-- BOOKING SECTION -->
+    <section class="booking-wrapper">
 
-  </div>
-  <!-- <pre>{{ movie_data | tojson }}</pre>
-  <pre>{{ movie_data }}</pre> -->
-  <!-- Link to external JS -->
-   <script>
-    const movieId = "{{ movie_id }}";
-   </script>
-  <script src="{{ url_for('static', filename='movie.js') }}"></script>
+        <div class="booking-section">
+
+            <h3>
+                <i class="fa-solid fa-ticket"></i>
+                Book Your Tickets
+            </h3>
+
+            <!-- THEATER AND SHOWTIME -->
+            <div class="select-row">
+
+                <label for="theaterSelect">Theater</label>
+
+                <select id="theaterSelect">
+                    {% for t in movie_data.theaters %}
+                    <option value="{{ t }}">{{ t }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="showtimeSelect">Show Time</label>
+
+                <select id="showtimeSelect">
+                    {% for s in movie_data.showtimes %}
+                    <option value="{{ s }}">{{ s }}</option>
+                    {% endfor %}
+                </select>
+
+            </div>
+
+
+            <!-- CINEMA SCREEN -->
+            <div class="screen-container">
+                <div class="screen"></div>
+                <p>SCREEN THIS WAY</p>
+            </div>
+
+
+            <!-- SEAT LEGEND -->
+            <div class="seat-legend">
+
+                <span>
+                    <i class="legend-seat available"></i>
+                    Available
+                </span>
+
+                <span>
+                    <i class="legend-seat selected"></i>
+                    Selected
+                </span>
+
+                <span>
+                    <i class="legend-seat booked"></i>
+                    Booked
+                </span>
+
+            </div>
+
+
+            <!-- SEAT MATRIX -->
+            <div
+                class="seat-matrix"
+                id="seatMatrix"
+                data-price="{{ movie_data.price }}">
+            </div>
+
+        </div>
+
+
+        <!-- BOOKING SUMMARY -->
+        <div class="bill-panel">
+
+            <h3>Booking Summary</h3>
+
+            <div class="summary-item">
+                <strong>Movie</strong>
+                <p>{{ movie_data.title }}</p>
+            </div>
+
+            <hr>
+
+            <div class="summary-item">
+                <strong>Selected Seats</strong>
+                <p id="selectedSeats">None</p>
+            </div>
+
+            <hr>
+
+            <p>
+                Price per seat:
+                ₹{{ movie_data.price }}
+            </p>
+
+            <p>
+                Total Seats:
+                <span id="seatCount">0</span>
+            </p>
+
+            <hr>
+
+            <h4>
+                Total Amount:
+                ₹<span id="totalAmount">0</span>
+            </h4>
+
+            <button type="button" id="confirmBooking"
+                    onclick="bookTicket()">
+                Confirm Booking
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- MOVIE ID FROM FLASK -->
+    <script>
+        const movieId = {{ movie_id | tojson }};
+    </script>
+
+    <script src="{{ url_for('static', filename='movie.js') }}"></script>
 
 </body>
 </html>

@@ -1,0 +1,84 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  height: 100vh;
+  background: linear-gradient(135deg,#141e30,#243b55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.admin-card {
+  background: #0d1b2a;
+  padding: 40px;
+  width: 350px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+.admin-card h2 {
+  color: #00c6ff;
+  margin-bottom: 5px;
+}
+
+.admin-card p {
+  color: #aaa;
+  font-size: 13px;
+  margin-bottom: 25px;
+}
+
+.admin-card input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 6px;
+  outline: none;
+}
+
+.admin-card button {
+  width: 100%;
+  padding: 12px;
+  background: #00c6ff;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.admin-card button:hover {
+  background: #00aaff;
+}
+
+.error {
+  color: red;
+  font-size: 13px;
+  margin-top: 10px;
+  display: block;
+}
+.switch {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.switch span {
+  color: #00c6ff;
+  cursor: pointer;
+  font-weight: bold;
+}
+.switch span:hover {
+  text-decoration: underline;
+}
